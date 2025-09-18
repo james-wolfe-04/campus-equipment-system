@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class LoanService {
@@ -44,6 +45,7 @@ public class LoanService {
         loan.setStartDate(LocalDate.now());
         loan.setDueDate(LocalDate.now().plusDays(LOAN_DAYS));
         loan.setStatus(LoanStatus.ACTIVE);
+        loan.setPenalty(0.0);
 
         equipment.setAvailable(false);
         equipmentRepo.save(equipment);
@@ -61,7 +63,18 @@ public class LoanService {
         }
 
         loan.setReturnDate(LocalDate.now());
-        loan.setStatus(LocalDate.now().isAfter(loan.getDueDate()) ? LoanStatus.OVERDUE : LoanStatus.RETURNED);
+
+        if (LocalDate.now().isAfter(loan.getDueDate())) {
+            loan.setStatus(LoanStatus.OVERDUE);
+
+            long daysLate = ChronoUnit.DAYS.between(loan.getDueDate(), LocalDate.now());
+            LateFeeStrategy feeStrategy = new FiftyPesoPerDayStrategy();
+            loan.setPenalty(feeStrategy.calculateFee(daysLate));
+
+        } else {
+            loan.setStatus(LoanStatus.RETURNED);
+            loan.setPenalty(0.0);
+        }
 
         Equipment equipment = loan.getEquipment();
         equipment.setAvailable(true);

@@ -16,9 +16,12 @@ public class Loan {
     private LocalDate dueDate;
     private LocalDate returnDate;
 
+    private double penalty = 0.0; // Penalty in pesos
+
     @Enumerated(EnumType.STRING)
     private LoanStatus status;
 
+    // Getters and setters
     public Long getId() { return id; }
     public Equipment getEquipment() { return equipment; }
     public void setEquipment(Equipment equipment) { this.equipment = equipment; }
@@ -32,4 +35,6 @@ public class Loan {
     public void setReturnDate(LocalDate returnDate) { this.returnDate = returnDate; }
     public LoanStatus getStatus() { return status; }
     public void setStatus(LoanStatus status) { this.status = status; }
+    public double getPenalty() { return penalty; }
+    public void setPenalty(double penalty) { this.penalty = penalty; }
 }
